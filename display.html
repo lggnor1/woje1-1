@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>저장된 데이터 표시</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            background-color: #f0f0f0; /* 배경 색상 추가 (선택 사항) */
+        }
+        .container {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>저장된 데이터</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>오픈채팅방 닉네임</th>
+                    <th>마인크래프트 닉네임</th>
+                    <th>저장 시간</th>
+                </tr>
+            </thead>
+            <tbody id="dataRows">
+                <!-- 여기에 Firestore에서 가져온 데이터가 들어갈 자리 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Firebase SDK 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyChoc-QTNTC170E8BcNFzuo1x9B-Dl1DOA",
+            authDomain: "wojewild-b9973.firebaseapp.com",
+            projectId: "wojewild-b9973",
+            storageBucket: "wojewild-b9973.appspot.com",
+            messagingSenderId: "507830599518",
+            appId: "1:507830599518:web:d242a4cda643f06bb199cf",
+            measurementId: "G-HQ8ZJNHP49"
+        };
+
+        // Firebase 앱 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Firestore 데이터 가져오기
+        const datasRef = collection(db, "datas");
+        getDocs(datasRef).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const openNick = data.OpenChattingNickName;
+                const mcNick = data.MinecraftIGN;
+                const createdAt = data.createdAt.toDate(); // Firestore Timestamp를 JavaScript Date 객체로 변환
+                const timeString = `${createdAt.getFullYear()}-${createdAt.getMonth()+1}-${createdAt.getDate()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`;
+
+                // 가져온 데이터를 테이블에 추가
+                const row = `
+                    <tr>
+                        <td>${openNick}</td>
+                        <td>${mcNick}</td>
+                        <td>${timeString}</td>
+                    </tr>
+                `;
+                document.getElementById("dataRows").innerHTML += row;
+            });
+        }).catch((error) => {
+            console.error("Error getting documents: ", error);
+            alert("데이터 가져오기 중 오류가 발생했습니다.");
+        });
+    </script>
+</body>
+</html>
